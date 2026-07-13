@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Control SAP Logística</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+    :root {
+        --bg-app: #0b1220;
+        --bg-sidebar: #0f1729;
+        --bg-sidebar-2: #131d33;
+        --bg-card: #ffffff;
+        --bg-main: #eef1f6;
+        --accent: #2dd4bf;
+        --accent-soft: rgba(45, 212, 191, 0.12);
+        --accent-amber: #f59e0b;
+        --text-primary: #e7ecf5;
+        --text-muted: #8694ab;
+        --text-dark: #1a2236;
+        --border-soft: rgba(255,255,255,0.07);
+        --shadow-deep: 0 20px 40px -12px rgba(5, 10, 25, 0.55);
+        --radius-lg: 16px;
+        --radius-md: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background-color: var(--bg-app);
+        color: var(--text-primary);
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+        width: 290px;
+        min-width: 290px;
+        background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--bg-sidebar-2) 100%);
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border-soft);
+        transition: margin-left 0.35s cubic-bezier(.4,0,.2,1), box-shadow 0.35s ease;
+        position: relative;
+        z-index: 30;
+    }
+
+    .sidebar-header {
+        padding: 22px 22px 20px 22px;
+        border-bottom: 1px solid var(--border-soft);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .logo-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent) 0%, #0ea5a3 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #04211f;
+        flex-shrink: 0;
+        box-shadow: 0 6px 16px -4px rgba(45, 212, 191, 0.5);
+    }
+    .logo-text { line-height: 1.25; }
+    .logo-text .title {
+        font-size: 14.5px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        color: #fff;
+    }
+    .logo-text .subtitle {
+        font-size: 11px;
+        color: var(--text-muted);
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+    }
+
+    .status-bar {
+        margin: 16px 22px 6px 22px;
+        padding: 10px 14px;
+        background: rgba(45, 212, 191, 0.08);
+        border: 1px solid rgba(45, 212, 191, 0.18);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12.5px;
+        color: #b9f3ea;
+    }
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.7);
+        animation: pulse 2s infinite;
+        flex-shrink: 0;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.55); }
+        70% { box-shadow: 0 0 0 7px rgba(45, 212, 191, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+    }
+
+    .menu-section-label {
+        margin: 22px 26px 8px 26px;
+        font-size: 10.5px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .menu-options {
+        flex-grow: 1;
+        padding: 4px 16px 16px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        overflow-y: auto;
+    }
+
+    .menu-btn {
+        position: relative;
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text-muted);
+        padding: 13px 14px;
+        text-align: left;
+        font-size: 13.5px;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: var(--radius-md);
+        transition: all 0.25s ease;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        overflow: hidden;
+    }
+    .menu-btn .icon-wrap {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: var(--text-muted);
+        transition: all 0.25s ease;
+        flex-shrink: 0;
+    }
+    .menu-btn span.label { white-space: nowrap; }
+    .menu-btn::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: var(--accent);
+        transform: scaleY(0);
+        transition: transform 0.25s ease;
+        border-radius: 0 4px 4px 0;
+    }
+    .menu-btn:hover {
+        background-color: rgba(255,255,255,0.05);
+        color: #fff;
+        transform: translateX(2px);
+    }
+    .menu-btn:hover .icon-wrap {
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+    }
+    .menu-btn.active {
+        background: linear-gradient(90deg, var(--accent-soft) 0%, rgba(45,212,191,0.02) 100%);
+        color: #fff;
+        font-weight: 600;
+        border-color: rgba(45, 212, 191, 0.25);
+    }
+    .menu-btn.active::before { transform: scaleY(1); }
+    .menu-btn.active .icon-wrap {
+        background: var(--accent);
+        color: #04211f;
+        box-shadow: 0 4px 12px -2px rgba(45, 212, 191, 0.55);
+    }
+
+    .sidebar-footer {
+        padding: 16px 22px;
+        border-top: 1px solid var(--border-soft);
+        font-size: 11px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .sidebar-footer .ver-tag {
+        background: rgba(255,255,255,0.06);
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: var(--bg-main);
+        min-width: 0;
+    }
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 28px;
+        background: var(--bg-card);
+        border-bottom: 1px solid #e3e8f0;
+        gap: 16px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .hamburger {
+        display: none;
+        background: var(--bg-main);
+        border: 1px solid #dde3ee;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-dark);
+        font-size: 15px;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+    }
+    .hamburger:hover { background: #e2e8f5; }
+    .topbar-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .topbar-sub {
+        font-size: 12px;
+        color: #97a2b8;
+        margin-top: 2px;
+    }
+    .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    .refresh-btn {
+        background: var(--accent-soft);
+        color: #0d7a72;
+        border: 1px solid rgba(45,212,191,0.3);
+        padding: 9px 14px;
+        border-radius: 9px;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: all 0.2s ease;
+    }
+    .refresh-btn:hover { background: rgba(45,212,191,0.22); }
+    .refresh-btn i { transition: transform 0.5s ease; }
+    .refresh-btn.spinning i { animation: spin 0.6s linear; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .frame-area {
+        flex-grow: 1;
+        padding: 20px 28px 28px 28px;
+        min-height: 0;
+        display: flex;
+    }
+    .frame-card {
+        position: relative;
+        flex-grow: 1;
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-deep);
+        overflow: hidden;
+        border: 1px solid #e3e8f0;
+    }
+    iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: white;
+        display: block;
+    }
+
+    /* loading overlay */
+    .loading-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0.92);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 10;
+    }
+    .loading-overlay.show { opacity: 1; pointer-events: all; }
+    .spinner {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 4px solid #dfe6f0;
+        border-top-color: var(--accent);
+        animation: rotate 0.8s linear infinite;
+    }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+    .loading-text {
+        font-size: 12.5px;
+        color: var(--text-muted);
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    .progress-track {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: transparent;
+        z-index: 11;
+        overflow: hidden;
+    }
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--accent), var(--accent-amber));
+        transition: width 0.3s ease;
+    }
+    .progress-bar.loading { animation: loadbar 0.9s ease forwards; }
+    @keyframes loadbar {
+        0% { width: 0%; }
+        60% { width: 75%; }
+        100% { width: 100%; }
+    }
+
+    /* overlay backdrop */
+    .backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(5,10,25,0.5);
+        z-index: 20;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .backdrop.show { display: block; opacity: 1; }
+
+    /* ===== INTERACTIVO: PANEL DE CONTROL DE PENDIENTES ===== */
+    .notes-drawer {
+        position: fixed;
+        top: 0; right: -360px; bottom: 0;
+        width: 360px;
+        background: var(--bg-sidebar-2);
+        border-left: 1px solid var(--border-soft);
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+        transition: right 0.3s cubic-bezier(.4,0,.2,1);
+        box-shadow: var(--shadow-deep);
+    }
+    .notes-drawer.open { right: 0; }
+    .notes-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-soft);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .notes-header h3 { font-size: 15px; font-weight: 600; color: #fff; }
+    .close-notes-btn {
+        background: transparent; border: none; color: var(--text-muted);
+        cursor: pointer; font-size: 16px; transition: color 0.2s;
+    }
+    .close-notes-btn:hover { color: #fff; }
+    
+    .notes-body { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
+    
+    /* Input para agregar tarea */
+    .todo-input-group {
+        display: flex; gap: 8px;
+    }
+    .todo-input {
+        flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md); padding: 10px 14px; color: #fff;
+        font-size: 13px; outline: none; transition: border-color 0.2s;
+    }
+    .todo-input:focus { border-color: var(--accent); }
+    .todo-add-btn {
+        background: var(--accent); color: #04211f; border: none;
+        border-radius: var(--radius-md); width: 38px; height: 38px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px; cursor: pointer; font-weight: bold; transition: opacity 0.2s;
+    }
+    .todo-add-btn:hover { opacity: 0.9; }
+
+    /* Lista de tareas */
+    .todo-list {
+        flex-grow: 1; overflow-y: auto; list-style: none;
+        display: flex; flex-direction: column; gap: 10px; padding-right: 4px;
+    }
+    .todo-item {
+        background: rgba(255,255,255,0.03); border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md); padding: 12px; display: flex; align-items: flex-start;
+        gap: 10px; transition: all 0.2s ease; animation: fadeIn 0.2s ease forwards;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Estados de Alerta y Completado */
+    .todo-item.high-priority {
+        border-color: rgba(245, 158, 11, 0.4);
+        background: rgba(245, 158, 11, 0.06);
+    }
+    .todo-item.completed {
+        opacity: 0.5;
+    }
+    .todo-item.completed .todo-text {
+        text-decoration: line-through; color: var(--text-muted);
+    }
+
+    .todo-checkbox {
+        margin-top: 3px; cursor: pointer; width: 15px; height: 15px;
+        accent-color: var(--accent);
+    }
+    .todo-text {
+        flex-grow: 1; font-size: 13px; color: #fff; line-height: 1.4;
+        word-break: break-word;
+    }
+    
+    /* Acciones dentro de la tarea */
+    .todo-actions { display: flex; gap: 6px; }
+    .todo-action-btn {
+        background: transparent; border: none; font-size: 12px; cursor: pointer;
+        padding: 4px; border-radius: 4px; transition: all 0.2s;
+    }
+    .btn-alert { color: var(--text-muted); }
+    .btn-alert:hover, .todo-item.high-priority .btn-alert { color: var(--accent-amber); }
+    .btn-delete { color: var(--text-muted); }
+    .btn-delete:hover { color: #f87171; }
+
+    .notes-footer-text { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: auto; }
+    
+    /* Botón flotante */
+    .floating-notes-trigger {
+        position: fixed; bottom: 24px; right: 24px;
+        width: 50px; height: 50px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent) 0%, #0ea5a3 100%);
+        color: #04211f; display: flex; align-items: center; justify-content: center;
+        font-size: 18px; cursor: pointer; z-index: 35; border: none;
+        box-shadow: 0 6px 20px rgba(45, 212, 191, 0.4); transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .floating-notes-trigger:hover {
+        transform: scale(1.05); box-shadow: 0 8px 24px rgba(45, 212, 191, 0.5);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 880px) {
+        .sidebar {
+            position: fixed; top: 0; bottom: 0; left: 0; margin-left: -290px; box-shadow: none;
+        }
+        .sidebar.open {
+            margin-left: 0; box-shadow: 16px 0 40px rgba(0,0,0,0.35);
+        }
+        .hamburger { display: flex; }
+        .frame-area { padding: 14px; }
+        .topbar { padding: 14px 16px; }
+        .topbar-sub { display: none; }
+        .notes-drawer { width: 100%; right: -100%; }
+    }
+</style>
+</head>
+<body>
+
+    <div class="backdrop" id="backdrop" onclick="cerrarTodo()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark"><i class="fa-solid fa-truck-fast"></i></div>
+            <div class="logo-text">
+                <div class="title">CENTRAL DE HERRAMIENTAS</div>
+                <div class="subtitle">SAP · Logística</div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span class="pulse-dot"></span>
+            Usuario en línea · Sesión activa
+        </div>
+
+        <div class="menu-section-label">Procesos</div>
+        <div class="menu-options">
+            <button class="menu-btn active" onclick="cargarApp(this, 'https://lautinax.github.io/va05/')">
+                <span class="icon-wrap"><i class="fa-solid fa-box-archive"></i></span>
+                <span class="label">Para enviar a back office</span>
+            </button>
+            <button class="menu-btn" onclick="cargarApp(this, 'https://lautinax.github.io/descuento/')">
+                <span class="icon-wrap"><i class="fa-solid fa-percent"></i></span>
+                <span class="label">Aplicar Descuento omitidos</span>
+            </button>
+            <button class="menu-btn" onclick="cargarApp(this, 'https://lautinax.github.io/laburo/')">
+                <span class="icon-wrap"><i class="fa-solid fa-sack-dollar"></i></span>
+                <span class="label">Detalles de pedidos sin procesar</span>
+            </button>
+            <button class="menu-btn" onclick="cargarApp(this, 'https://lautinax.github.io/pedido-en-preparacion/')">
+                <span class="icon-wrap"><i class="fa-solid fa-truck-ramp-box"></i></span>
+                <span class="label">Reporte de pendientes</span>
+            </button>
+            <button class="menu-btn" onclick="cargarApp(this, 'https://lautinax.github.io/retiros-Andreani-/')">
+                <span class="icon-wrap"><i class="fa-solid fa-truck-moving"></i></span>
+                <span class="label">Retiros Andreani</span>
+            </button>
+        </div>
+
+        <div class="sidebar-footer">
+            <span>Panel Logístico v2.2</span>
+            <span class="ver-tag">ONLINE</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger" id="hamburger" onclick="toggleSidebar(true)">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div>
+                    <div class="topbar-title" id="topbarTitle">Para enviar a back office</div>
+                    <div class="topbar-sub">Vista activa en el panel central</div>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button class="refresh-btn" id="refreshBtn" onclick="recargarActual()">
+                    <i class="fa-solid fa-rotate-right"></i> Actualizar
+                </button>
+            </div>
+        </div>
+
+        <div class="frame-area">
+            <div class="frame-card">
+                <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Cargando módulo...</div>
+                </div>
+                <iframe id="pantalla-interna" src="https://lautinax.github.io/va05/"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <button class="floating-notes-trigger" onclick="toggleNotes(true)" title="Control de Pendientes">
+        <i class="fa-solid fa-clipboard-check"></i>
+    </button>
+
+    <div class="notes-drawer" id="notesDrawer">
+        <div class="notes-header">
+            <h3><i class="fa-solid fa-list-check" style="color: var(--accent); margin-right: 8px;"></i> Control de Pendientes</h3>
+            <button class="close-notes-btn" onclick="toggleNotes(false)"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="notes-body">
+            <div class="todo-input-group">
+                <input type="text" class="todo-input" id="todoInput" placeholder="Ej: Revisar talles de remito SAP...">
+                <button class="todo-add-btn" onclick="addTarea()"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            
+            <ul class="todo-list" id="todoList">
+                </ul>
+
+            <div class="notes-footer-text"><i class="fa-solid fa-shield-halved"></i> Datos locales de esta PC</div>
+        </div>
+    </div>
+
+    <script>
+        let urlActual = 'https://lautinax.github.io/va05/';
+        let listaTareas = [];
+
+        // Inicializar y cargar desde localStorage al arrancar
+        document.addEventListener('DOMContentLoaded', () => {
+            const guardadas = localStorage.getItem('sap_panel_todos');
+            if (guardadas) {
+                listaTareas = JSON.parse(guardadas);
+                renderTareas();
+            }
+
+            // Permitir agregar con la tecla Enter
+            document.getElementById('todoInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTarea();
+            });
+        });
+
+        function guardarEnStorage() {
+            localStorage.setItem('sap_panel_todos', JSON.stringify(listaTareas));
+        }
+
+        function addTarea() {
+            const input = document.getElementById('todoInput');
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            const nuevaTarea = {
+                id: Date.now(),
+                text: texto,
+                completed: false,
+                highPriority: false
+            };
+
+            listaTareas.push(nuevaTarea);
+            input.value = '';
+            guardarEnStorage();
+            renderTareas();
+        }
+
+        function toggleComplete(id) {
+            listaTareas = listaTareas.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+            guardarEnStorage();
+            renderTareas();
+        }
+
+        function togglePriority(id) {
+            listaTareas = listaTareas.map(t => t.id === id ? { ...t, highPriority: !t.highPriority } : t);
+            guardarEnStorage();
+            renderTareas();
+        }
+
+        function deleteTarea(id) {
+            listaTareas = listaTareas.filter(t => t.id !== id);
+            guardarEnStorage();
+            renderTareas();
+        }
+
+        function renderTareas() {
+            const container = document.getElementById('todoList');
+            container.innerHTML = '';
+
+            if (listaTareas.length === 0) {
+                container.innerHTML = `<li style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 20px;">No tenés tareas pendientes. ¡Al día!</li>`;
+                return;
+            }
+
+            listaTareas.forEach(tarea => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${tarea.completed ? 'completed' : ''} ${tarea.highPriority ? 'high-priority' : ''}`;
+                
+                li.innerHTML = `
+                    <input type="checkbox" class="todo-checkbox" ${tarea.completed ? 'checked' : ''} onchange="toggleComplete(${tarea.id})">
+                    <span class="todo-text">${tarea.text}</span>
+                    <div class="todo-actions">
+                        <button class="todo-action-btn btn-alert" onclick="togglePriority(${tarea.id})" title="Marcar como Alerta (Prioritaria)">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                        </button>
+                        <button class="todo-action-btn btn-delete" onclick="deleteTarea(${tarea.id})" title="Eliminar pendiente">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(li);
+            });
+        }
+
+        function cargarApp(boton, url) {
+            urlActual = url;
+            mostrarCarga();
+            document.getElementById('pantalla-interna').src = url;
+
+            const botones = document.querySelectorAll('.menu-btn');
+            botones.forEach(btn => btn.classList.remove('active'));
+            boton.classList.add('active');
+
+            document.getElementById('topbarTitle').textContent = boton.querySelector('.label').textContent;
+
+            if (window.innerWidth <= 880) toggleSidebar(false);
+        }
+
+        function mostrarCarga() {
+            const overlay = document.getElementById('loadingOverlay');
+            const bar = document.getElementById('progressBar');
+            overlay.classList.add('show');
+            bar.classList.remove('loading');
+            void bar.offsetWidth; 
+            bar.classList.add('loading');
+        }
+
+        function ocultarCarga() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
+        document.getElementById('pantalla-interna').addEventListener('load', () => {
+            setTimeout(ocultarCarga, 250);
+        });
+
+        function recargarActual() {
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('spinning');
+            mostrarCarga();
+            document.getElementById('pantalla-interna').src = urlActual;
+            setTimeout(() => btn.classList.remove('spinning'), 650);
+        }
+
+        function toggleSidebar(open) {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('backdrop');
+            if (open) {
+                sidebar.classList.add('open');
+                backdrop.classList.add('show');
+            } else {
+                sidebar.classList.remove('open');
+                if(!document.getElementById('notesDrawer').classList.contains('open')) backdrop.classList.remove('show');
+            }
+        }
+
+        function toggleNotes(open) {
+            const drawer = document.getElementById('notesDrawer');
+            const backdrop = document.getElementById('backdrop');
+            if (open) {
+                drawer.classList.add('open');
+                backdrop.classList.add('show');
+            } else {
+                drawer.classList.remove('open');
+                if(!document.getElementById('sidebar').classList.contains('open')) backdrop.classList.remove('show');
+            }
+        }
+
+        function cerrarTodo() {
+            toggleSidebar(false);
+            toggleNotes(false);
+        }
+    </script>
+</body>
+</html>
